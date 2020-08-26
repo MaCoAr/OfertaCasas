@@ -83,7 +83,7 @@ class OfertacasasPipeline(object):
         house.baths = item['baths']
         house.garage = item['garage']
         house.area = item['area']
-        house.price = item['price']
+        house.price = item['price'].strip()
 
         # # check whether the house exists
         # exits_house = session.query(house).filter_by(url=house.url).first()

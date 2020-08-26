@@ -23,15 +23,18 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from ..items import OfertacasasItems
 
-
 class OfertaCasasSpider(CrawlSpider):
     name = 'ofertacasas'
     allowed_domain = ['www.vivanuncios.com.mx']
     start_url = ['https://www.vivanuncios.com.mx/s-casas-en-venta/colima-col/v1c1293l10256p1']
 
     rules = {
-        Rule(LinkExtractor(allow=(), restrict_xpaths=('//a[@class="pag-box"]')))
+        Rule(LinkExtractor(allow=(), restrict_xpaths=('//a[@class="icon-pagination-right"]'))),
+        Rule(LinkExtractor(allow=(), restrict_xpaths=('//a[@class="href-link tile-title-text"]')),
+             callback='parse_item', follow=False)
     }
+
+    listImages = []
 
     def start_requests(self):
         urls = [
@@ -55,23 +58,25 @@ class OfertaCasasSpider(CrawlSpider):
             OfCa_items['baths'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block re-bathroom"]/text()').get()
             garage = contenedor[i].xpath('.//div[contains(@class,"car-parking")]/text()').get()
             OfCa_items['garage'] = 0
-            if garage != None:
+            if garage is not None:
                 OfCa_items['garage'] = garage
             OfCa_items['area'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block surface-area"]/text()').get()
             OfCa_items['price'] = contenedor[i].xpath('.//span[@class="ad-price"]/text()').get()
 
             # yield OfCa_items
-            url_images = "https://www.vivanuncios.com.mx"+OfCa_items['url']
+            url_images = "https://www.vivanuncios.com.mx" + OfCa_items['url']
             print(url_images)
-            yield scrapy.Request(url=url_images, callback=self.parseImages)
+            yield scrapy.Request(url=url_images, callback=self.parse_images)
+            #yield OfCa_items
 
-    def parseImages(self, response):
+    def parse_images(self, response):
+        OfCa_items = OfertacasasItems()
+        self.listImages.clear()
         selectorImages = response.xpath('//div[@class="gallery-slide"]/div/div/picture')
-        listImages = []
+        # print(OfCa_items['url'])
         for i in range(1, len(selectorImages)):
-            # img = selectorImages.xpath('.//img')[i].attrib['src']
             img = selectorImages.xpath('.//source[@type="image/jpeg"]')[i].attrib['data-srcset']
             print(img)
-            listImages.append(img)
-
-        return(yield)
+            self.listImages.append(img)
+        OfCa_items['images'] = self.listImages
+        yield OfCa_items

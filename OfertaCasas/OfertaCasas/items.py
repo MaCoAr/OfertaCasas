@@ -21,6 +21,7 @@ class OfertacasasItems(scrapy.Item):
     garage = scrapy.Field()
     area = scrapy.Field()
     price = scrapy.Field()
+    images = scrapy.Field()
 
     # Others Filters
     land_1 = scrapy.Field()
