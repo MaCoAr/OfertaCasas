@@ -12,6 +12,7 @@ class OfertacasasItems(scrapy.Item):
     # define the fields for your item here like:
 
     # General
+    house_id = scrapy.Field()
     url = scrapy.Field()
     # Filters
     location = scrapy.Field()

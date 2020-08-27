@@ -28,6 +28,7 @@ class HouseAttributes(Base):
     __tablename__ = "house_attributes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    house_id = Column('house_id', String())
     url = Column('url', Text())                         # URL de la página a la que se extrae información
     location = Column('loc', String())                  # Nombre la ubicación geografica
     description = Column('description', Text())         # Descripción ampliada de la vivienda
@@ -36,3 +37,12 @@ class HouseAttributes(Base):
     garage = Column('garage', Integer)                  # Número de celdas para parqueo de vehículos
     area = Column('area', String())                     # Número de metros cuadrados del terreno del inmueble
     price = Column('price', String())                   # Valor del inmueble
+
+
+class HouseImages(Base):
+    __tablename__ = "house_images"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    house_id = Column('house_id', String())
+    url = Column('url', Text())
+    image = Column('image', String())

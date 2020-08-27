@@ -75,7 +75,9 @@ class OfertacasasPipeline(object):
         session = self.Session()
 
         house = models.HouseAttributes()
+        house_images = models.HouseImages()
 
+        house.house_id = item['house_id']
         house.url = item['url']
         house.location = item['location']
         house.description = item['description']
@@ -83,12 +85,21 @@ class OfertacasasPipeline(object):
         house.baths = item['baths']
         house.garage = item['garage']
         house.area = item['area']
-        house.price = item['price'].strip()
+        house.price = str(item['price']).strip()
 
         # # check whether the house exists
         # exits_house = session.query(house).filter_by(url=house.url).first()
         # if exits_house is None:     # The house not exist
         session.add(house)      # Add the house to BD
         session.commit()        # Confirm
+
+        # Save data to images
+        for img in range(len(item['images'])):
+            house_images.house_id = item['house_id']
+            house_images.url = item['url']
+            house_images.image = item['images'][img]
+
+            session.add(house_images)
+            session.commit()
 
         return item

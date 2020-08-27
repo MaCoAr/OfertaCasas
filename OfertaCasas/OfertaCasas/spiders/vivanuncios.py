@@ -50,30 +50,31 @@ class OfertaCasasSpider(CrawlSpider):
         contenedor = response.xpath('//*[@id="tileRedesign"]/div')
 
         for i in range(len(contenedor)):
+            OfCa_items['house_id'] = contenedor[i].xpath('//div[@class="tile-contact-us"]').attrib['data-tileadid']
             OfCa_items['url'] = contenedor[i].xpath('.//div[@class="tile-desc one-liner"]/a/@href').get()
             OfCa_items['location'] = contenedor[i].xpath('.//div[@class="tile-location one-liner"]/b').get()
             OfCa_items['description'] = contenedor[i].xpath('.//div[@class="expanded-description"]/text()').get()
             OfCa_items['bedrooms'] = contenedor[i].xpath(
                 './/div[@class="chiplets-inline-block re-bedroom"]/text()').get()
             OfCa_items['baths'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block re-bathroom"]/text()').get()
+            OfCa_items['area'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block surface-area"]/text()').get()
+            OfCa_items['price'] = contenedor[i].xpath('.//span[@class="ad-price"]/text()').get()
+
             garage = contenedor[i].xpath('.//div[contains(@class,"car-parking")]/text()').get()
             OfCa_items['garage'] = 0
             if garage is not None:
                 OfCa_items['garage'] = garage
-            OfCa_items['area'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block surface-area"]/text()').get()
-            OfCa_items['price'] = contenedor[i].xpath('.//span[@class="ad-price"]/text()').get()
 
+            parametros = {"OfCa_items": OfCa_items}
             # yield OfCa_items
             url_images = "https://www.vivanuncios.com.mx" + OfCa_items['url']
             print(url_images)
-            yield scrapy.Request(url=url_images, callback=self.parse_images)
+            yield scrapy.Request(url=url_images, callback=self.parse_images, cb_kwargs=parametros)
             #yield OfCa_items
 
-    def parse_images(self, response):
-        OfCa_items = OfertacasasItems()
+    def parse_images(self, response, OfCa_items):
         self.listImages.clear()
         selectorImages = response.xpath('//div[@class="gallery-slide"]/div/div/picture')
-        # print(OfCa_items['url'])
         for i in range(1, len(selectorImages)):
             img = selectorImages.xpath('.//source[@type="image/jpeg"]')[i].attrib['data-srcset']
             print(img)
