@@ -34,7 +34,7 @@ class OfertaCasasSpider(CrawlSpider):
              callback='parse_item', follow=False)
     }
 
-    listImages = []
+
 
     def start_requests(self):
         urls = [
@@ -45,12 +45,15 @@ class OfertaCasasSpider(CrawlSpider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        OfCa_items = OfertacasasItems()
-
         contenedor = response.xpath('//*[@id="tileRedesign"]/div')
 
         for i in range(len(contenedor)):
-            OfCa_items['house_id'] = contenedor[i].xpath('//div[@class="tile-contact-us"]').attrib['data-tileadid']
+            OfCa_items = OfertacasasItems()
+            # OfCa_items['house_id'] = contenedor[i].xpath('//div[@class="tile-contact-us"]').attrib['data-tileadid']
+            OfCa_items['house_id'] = contenedor[i].xpath(
+                '//div[contains(@class,"tileV2") and contains(@class, "REAdTileV2") and contains(@class,"regular")]')[
+                i].attrib['data-tileadid']
+
             OfCa_items['url'] = contenedor[i].xpath('.//div[@class="tile-desc one-liner"]/a/@href').get()
             OfCa_items['location'] = contenedor[i].xpath('.//div[@class="tile-location one-liner"]/b').get()
             OfCa_items['description'] = contenedor[i].xpath('.//div[@class="expanded-description"]/text()').get()
@@ -66,18 +69,15 @@ class OfertaCasasSpider(CrawlSpider):
                 OfCa_items['garage'] = garage
 
             parametros = {"OfCa_items": OfCa_items}
-            # yield OfCa_items
             url_images = "https://www.vivanuncios.com.mx" + OfCa_items['url']
-            print(url_images)
             yield scrapy.Request(url=url_images, callback=self.parse_images, cb_kwargs=parametros)
-            #yield OfCa_items
 
     def parse_images(self, response, OfCa_items):
-        self.listImages.clear()
+        img_items = []
         selectorImages = response.xpath('//div[@class="gallery-slide"]/div/div/picture')
         for i in range(1, len(selectorImages)):
             img = selectorImages.xpath('.//source[@type="image/jpeg"]')[i].attrib['data-srcset']
-            print(img)
-            self.listImages.append(img)
-        OfCa_items['images'] = self.listImages
+            img_items.append(img)
+
+        OfCa_items['images'] = img_items
         yield OfCa_items
