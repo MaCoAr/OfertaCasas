@@ -91,7 +91,7 @@ HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # CADENA DE CONEXIÓN A LA BASE DE DATOS
 # SQLite
-CONNECTION_STRING = 'sqlite:///scrapy_houses_2.db'
+CONNECTION_STRING = 'sqlite:///scrapy_houses.db'
 
 # # MySQL
 # CONNECTION_STRING = "{drivername}://{user}:{passwd}@{host}:{port}/{db_name}?charset=utf8".format(

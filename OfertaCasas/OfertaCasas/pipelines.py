@@ -6,6 +6,7 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 # import sqlite3
+import re
 from sqlalchemy.orm import sessionmaker
 # from OfertaCasas.OfertaCasas.models import db_connect, create_table, HouseAttributes
 # from OfertaCasas.OfertaCasas import models
@@ -68,10 +69,23 @@ class OfertacasasPipeline(object):
     #     self.store_db(row_tuple)
     #     return item
 
+    def clean_html(self, raw_html):
+        clean_re = re.compile('<.*?>')
+        clean_text = re.sub(clean_re, '', raw_html)
+        return clean_text
+
     def process_item(self, item, spider):
         """Save information in the database
         This method is called for every item pipeline component
         """
+        # Clean data
+        try:
+            item['price'] = str(item['price']).strip()
+            item['location'] = self.clean_html(item['location'])
+        except Exception as Error:
+            print('Error:' + str(Error))
+
+        # Open DB session
         session = self.Session()
 
         # Save data to attributes
@@ -84,22 +98,20 @@ class OfertacasasPipeline(object):
         house.baths = item['baths']
         house.garage = item['garage']
         house.area = item['area']
-        house.price = str(item['price']).strip()
+        house.price = item['price']
 
-        # # check whether the house exists
-        # exits_house = session.query(house).filter_by(url=house.url).first()
-        # if exits_house is None:     # The house not exist
         session.add(house)      # Add the house to BD
-        session.commit()
+        session.flush()
 
         # Save data to images
         for img in range(len(item['images'])):
             house_images = models.HouseImages()
-            house_images.house_id = item['house_id']
+            house_images.house_id = house.id
             house_images.url = item['url']
             house_images.image = item['images'][img]
 
-            session.add(house_images)
+            session.add(house_images)   # Add images the house to BD
             session.commit()
 
         return item
+

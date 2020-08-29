@@ -8,6 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Table, ForeignKey, MetaData
 from scrapy.utils.project import get_project_settings
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (Integer, String, DateTime, Date, Float, Boolean, Text)
 
 
@@ -30,19 +31,22 @@ class HouseAttributes(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     house_id = Column('house_id', String())
     url = Column('url', Text())                         # URL de la página a la que se extrae información
-    location = Column('loc', String())                  # Nombre la ubicación geografica
+    location = Column('location', String())             # Nombre la ubicación geografica
     description = Column('description', Text())         # Descripción ampliada de la vivienda
     bedrooms = Column('bedrooms', String())             # Número de habitaciones
     baths = Column('baths', String())                   # Número de baños
     garage = Column('garage', Integer)                  # Número de celdas para parqueo de vehículos
     area = Column('area', String())                     # Número de metros cuadrados del terreno del inmueble
     price = Column('price', String())                   # Valor del inmueble
+    children = relationship('HouseImages', back_populates='parent')
 
 
 class HouseImages(Base):
     __tablename__ = "house_images"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    house_id = Column('house_id', String())
+    house_id = Column('house_id', Integer, ForeignKey('house_attributes.id'))
+    parent = relationship("HouseAttributes", back_populates="children")
     url = Column('url', Text())
     image = Column('image', String())
+
