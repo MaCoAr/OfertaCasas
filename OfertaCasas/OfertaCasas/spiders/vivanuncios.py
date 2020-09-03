@@ -63,6 +63,8 @@ class OfertaCasasSpider(CrawlSpider):
             OfCa_items['area'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block surface-area"]/text()').get()
             OfCa_items['price'] = contenedor[i].xpath('.//span[@class="ad-price"]/text()').get()
 
+            json_contenedor = response.xpath('//script[@type="application/ld+json"]').get()
+
             garage = contenedor[i].xpath('.//div[contains(@class,"car-parking")]/text()').get()
             OfCa_items['garage'] = 0
             if garage is not None:
