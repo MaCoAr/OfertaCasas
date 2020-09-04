@@ -19,9 +19,11 @@
 # https://towardsdatascience.com/a-minimalist-end-to-end-scrapy-tutorial-part-iii-bcd94a2e8bf3
 
 import scrapy
+import json
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from ..items import OfertacasasItems
+from ..Tools import CustomTools
 
 class OfertaCasasSpider(CrawlSpider):
     name = 'ofertacasas'
@@ -53,7 +55,6 @@ class OfertaCasasSpider(CrawlSpider):
             OfCa_items['house_id'] = contenedor[i].xpath(
                 '//div[contains(@class,"tileV2") and contains(@class, "REAdTileV2") and contains(@class,"regular")]')[
                 i].attrib['data-tileadid']
-
             OfCa_items['url'] = contenedor[i].xpath('.//div[@class="tile-desc one-liner"]/a/@href').get()
             OfCa_items['location'] = contenedor[i].xpath('.//div[@class="tile-location one-liner"]/b').get()
             OfCa_items['description'] = contenedor[i].xpath('.//div[@class="expanded-description"]/text()').get()
@@ -62,8 +63,6 @@ class OfertaCasasSpider(CrawlSpider):
             OfCa_items['baths'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block re-bathroom"]/text()').get()
             OfCa_items['area'] = contenedor[i].xpath('.//div[@class="chiplets-inline-block surface-area"]/text()').get()
             OfCa_items['price'] = contenedor[i].xpath('.//span[@class="ad-price"]/text()').get()
-
-            json_contenedor = response.xpath('//script[@type="application/ld+json"]').get()
 
             garage = contenedor[i].xpath('.//div[contains(@class,"car-parking")]/text()').get()
             OfCa_items['garage'] = 0
@@ -75,6 +74,13 @@ class OfertaCasasSpider(CrawlSpider):
             yield scrapy.Request(url=url_images, callback=self.parse_images, cb_kwargs=parametros)
 
     def parse_images(self, response, OfCa_items):
+        json_contenedor = response.xpath('//script[@type="application/ld+json"]').get()
+        json_contenedor = CustomTools.CleanHtml(json_contenedor)
+        jContend = json.loads(json_contenedor)
+        OfCa_items['latitude'] = jContend[0]['geo']['latitude']
+        OfCa_items['longitude'] = jContend[0]['geo']['longitude']
+        OfCa_items['url'] = response.url
+
         img_items = []
         selectorImages = response.xpath('//div[@class="gallery-slide"]/div/div/picture')
         for i in range(1, len(selectorImages)):

@@ -36,8 +36,10 @@ class HouseAttributes(Base):
     bedrooms = Column('bedrooms', String())             # Número de habitaciones
     baths = Column('baths', String())                   # Número de baños
     garage = Column('garage', Integer)                  # Número de celdas para parqueo de vehículos
-    area = Column('area', String())                     # Número de metros cuadrados del terreno del inmueble
-    price = Column('price', String())                   # Valor del inmueble
+    area = Column('area', Integer())                    # Número de metros cuadrados del terreno o del inmueble
+    price = Column('price', Integer())                  # Valor del inmueble
+    latitude = Column('latitude', String())             # Posición Geografica
+    longitude = Column('longitude', String())           # Posición Geografica
     children = relationship('HouseImages', back_populates='parent')
 
 

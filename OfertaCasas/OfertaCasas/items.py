@@ -23,6 +23,8 @@ class OfertacasasItems(scrapy.Item):
     area = scrapy.Field()
     price = scrapy.Field()
     images = scrapy.Field()
+    latitude = scrapy.Field()
+    longitude = scrapy.Field()
 
     # Others Filters
     land_1 = scrapy.Field()

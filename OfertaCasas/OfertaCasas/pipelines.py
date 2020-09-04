@@ -80,8 +80,9 @@ class OfertacasasPipeline(object):
         """
         # Clean data
         try:
-            item['price'] = str(item['price']).strip()
+            item['price'] = str(item['price']).strip().replace('$', '').replace(',', '')
             item['location'] = self.clean_html(item['location'])
+            item['area'] = int(str(item['area']).replace('m²', ''))
         except Exception as Error:
             print('Error:' + str(Error))
 
@@ -99,6 +100,8 @@ class OfertacasasPipeline(object):
         house.garage = item['garage']
         house.area = item['area']
         house.price = item['price']
+        house.latitude = item['latitude']
+        house.longitude = item['longitude']
 
         session.add(house)      # Add the house to BD
         session.flush()
