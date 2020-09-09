@@ -1,10 +1,14 @@
+import random
+import time
+
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from ..items import OfertacasasItems
 
 class Property24Spider(CrawlSpider):
-    name = 'inmuebles'
+    # handle_httpstatus_list = [403, 504]
+    name = 'property'
     allowed_domain = ['www.inmuebles24.com']
     start_urls = ['https://www.inmuebles24.com/casas-en-venta-en-manzanillo.html']
 
@@ -13,6 +17,13 @@ class Property24Spider(CrawlSpider):
         Rule(LinkExtractor(allow=(), restrict_xpaths=('//h2[@class="posting-title"]/a')),
              callback='parse_item', follow=False)
     }
+
+    # custom_settings = {
+    #     'DOWNLOADER_MIDDLEWARES': {
+    #             'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    #             'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
+    #         }
+    # }
 
     def start_requests(self):
         urls = [
@@ -23,6 +34,7 @@ class Property24Spider(CrawlSpider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
+        # time.sleep(random.randint(0, 4))
         container = response.xpath('//div[contains(@class,"posting-card")]')
         for i in range(len(container)):
             OfCa_Items = OfertacasasItems()
