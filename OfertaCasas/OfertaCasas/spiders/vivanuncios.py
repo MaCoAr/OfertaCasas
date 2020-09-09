@@ -25,6 +25,7 @@ from scrapy.linkextractors import LinkExtractor
 from ..items import OfertacasasItems
 from ..Tools import CustomTools
 
+
 class OfertaCasasSpider(CrawlSpider):
     name = 'ofertacasas'
     allowed_domain = ['www.vivanuncios.com.mx']
@@ -35,8 +36,6 @@ class OfertaCasasSpider(CrawlSpider):
         Rule(LinkExtractor(allow=(), restrict_xpaths=('//a[@class="href-link tile-title-text"]')),
              callback='parse_item', follow=False)
     }
-
-
 
     def start_requests(self):
         urls = [
