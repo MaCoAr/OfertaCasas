@@ -27,18 +27,29 @@ class ProprietarySpider(CrawlSpider):
         container = response.xpath('//div[@class="details-property"]')
         for i in range(len(container)):
             OfCa_Items = OfertacasasItems()
-            OfCa_Items['house_id'] = container[i].xpath('//button[@class="icon-favorito prop-fav"]').attrib['data-id']
-            OfCa_Items['url'] = container[i].xpath('//p[@class="title-property"]/a').attrib['href']
-            OfCa_Items['location'] = container[i].xpath('//p[contains(@class,"address-property")]/text()')[i].get()
+            OfCa_Items['house_id'] = container[i].xpath('.//button[@class="icon-favorito prop-fav"]').attrib['data-id']
+            OfCa_Items['url'] = container[i].xpath('.//p[@class="title-property"]/a').attrib['href']
+            OfCa_Items['location'] = container[i].xpath('.//p[contains(@class,"address-property")]/text()')[i].get()
             OfCa_Items['description'] = ''
-            selector_general_description = container[i].xpath('//ul[@class="gral-description"]')
-            OfCa_Items['bedrooms'] = container[i].xpath('//ul[@class="gral-description"]//li[1]').get()
-            OfCa_Items['baths'] = container[i].xpath('//ul[@class="gral-description"]//li[2]').get()
-            OfCa_Items['area'] = container[i].xpath('//ul[@class="gral-description"]//li[3]').get()
-            OfCa_Items['price'] = container[i].xpath('//p[@class="precio"]').get()
+
+            selector_general_description = container[i].xpath('.//ul[@class="gral-description"]//li')
+            for n in range(len(selector_general_description)):
+                try:
+                    class_name = selector_general_description.css('i')[n].attrib['class']
+                    attrib_val = selector_general_description.css('li')[n].attrib['data-value']
+                    if 'icon-recamaras' == class_name: OfCa_Items['bedrooms'] = attrib_val
+                    if 'icon-bano' == class_name: OfCa_Items['baths'] = attrib_val
+                    if 'icon-tamano-construccion' == class_name: OfCa_Items['area'] = attrib_val
+                except:
+                    pass
+
+            OfCa_Items['price'] = container[i].xpath('.//p[@class="precio"]').css('span::text').get()
             OfCa_Items['garage'] = 0
-            OfCa_Items['latitude'] = container[i].xpath('//div[@itemprop="geo"]/meta[@itemprop="latitude"]').get()
-            OfCa_Items['longitude'] = container[i].xpath('//div[@itemprop="geo"]/meta[@itemprop="longitude"]').get()
+
+            geolocation = container[i].xpath('//*[@id="list-properties"]//div[@itemprop="geo"]')
+            geolocation = geolocation[i].xpath('.//meta')
+            OfCa_Items['latitude'] = geolocation.css('meta')[0].attrib['content']
+            OfCa_Items['longitude'] = geolocation.css('meta')[1].attrib['content']
 
             parameters = {"ofca_items": OfCa_Items}
             url_images = OfCa_Items['url']
@@ -46,7 +57,7 @@ class ProprietarySpider(CrawlSpider):
 
     def parse_images(self, response, ofca_items):
         img_items = []
-        selectorImages = response.xpath('//div[@class="slick-track"]/div')
+        selectorImages = response.xpath('//div[@class="slider-listing"]')
         for i in range(1, len(selectorImages)):
             img = selectorImages.xpath('.//div[@class="slick-track"]/div/img"]')[i].attrib['src']
             img_items.append(img)

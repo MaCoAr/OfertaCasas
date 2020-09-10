@@ -70,6 +70,7 @@ HTTPERROR_ALLOWED_CODES = [404]
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
+# ROBOTSTXT_USER_AGENT = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
