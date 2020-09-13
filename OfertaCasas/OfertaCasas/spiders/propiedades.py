@@ -24,6 +24,7 @@ class ProprietarySpider(CrawlSpider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
+        print("\nLA URL ES: "+response.url+"\n\n")
         container = response.xpath('//div[@class="details-property"]')
         for i in range(len(container)):
             OfCa_Items = OfertacasasItems()
@@ -57,9 +58,12 @@ class ProprietarySpider(CrawlSpider):
 
     def parse_images(self, response, ofca_items):
         img_items = []
-        selectorImages = response.xpath('//div[@class="slider-listing"]')
-        for i in range(1, len(selectorImages)):
-            img = selectorImages.xpath('.//div[@class="slick-track"]/div/img"]')[i].attrib['src']
+        selectorImages = response.xpath('.//div[@class="slider-listing"]//div[@class="center"]')
+        selectorImages = selectorImages.xpath('.//div[@class="slider"]').css('div').css('.open-gallery-slick')
+        selectorImages = selectorImages.xpath('.//div[@class="hidden"]//meta[@itemprop="image"]')
+        len_images = int(len(selectorImages) / 2)
+        for i in range(len_images):
+            img = selectorImages[i].xpath('.').attrib['content']
             img_items.append(img)
 
         ofca_items['images'] = img_items
